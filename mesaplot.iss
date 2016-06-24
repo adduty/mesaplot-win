@@ -17,20 +17,28 @@ AppVersion={#MyAppVersion}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={sd}\tools\python2\Lib\site-packages\{#MyAppName}
+DefaultDirName={reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath, |{sd}\python27\}Lib\site-packages\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=E:\mesaplot-wininst\gpl-2.0.rtf
 OutputBaseFilename=mesaplot-setup
-Compression=lzma
+Compression=none
 SolidCompression=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Messages]
+SelectDirLabel3=Setup will install [name] into the following folder. If you already have a Python 2.7 version installed elsewhere, please install in [your_python_root]\Lib\site-packages\MESAplot
+
+[Components]
+Name: "python"; Description: "Python 2.7.11 x64 installer"; Types: full
+;Name: "numpy"; Description: "numpy Python module"; Types: full
+;Name: "matplotlib"; Description: "matplotlib Python module"; Types: full
+;Name: "wxpython"; Description: "wxPython Python module"; Types: full
+
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
-Name: PYTHON; Description: Python for Windows x64; Flags: checkedonce
 
 [Files]
 Source: "E:\mesaplot-wininst\mesaplot\MESAplot.py"; DestDir: "{app}"; Flags: ignoreversion
@@ -40,7 +48,8 @@ Source: "E:\mesaplot-wininst\mesaplot\File_Manager.py"; DestDir: "{app}"; Flags:
 Source: "E:\mesaplot-wininst\mesaplot\MESAoutput1.py"; DestDir: "{app}"; Flags: ignoreversion
 Source: "E:\mesaplot-wininst\mesaplot\plot_manager.py"; DestDir: "{app}"; Flags: ignoreversion
 Source: "E:\mesaplot-wininst\mesaplot\README.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "E:\mesaplot-wininst\python-2.7.11.amd64.msi"; DestDir: "{tmp}"; Flags: ignoreversion
+Source: "E:\mesaplot-wininst\python-2.7.11.amd64.msi"; DestDir: "{tmp}"; Flags: ignoreversion; Components: "python"
+Source: "E:\mesaplot-wininst\wxPython3.0-win64-3.0.2.0-py27.exe"; DestDir: "{tmp}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -48,8 +57,58 @@ Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
+[Registry]
+; add Python root to path if not present
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: string; ValueName: "Path"; ValueData: "{olddata};{app}"; \
+    Check: NeedsAddPath('{app}')
+; add Python scripts dir to path if not present
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: string; ValueName: "Path"; ValueData: "{olddata};{app}/Scripts"; \
+    Check: NeedsAddPath('{app}\Scripts')
+; add .PYC to PATHEXT if not present
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: expandsz; ValueName: "PATHEXT"; ValueData: "{olddata};.PYC"; \
+    Check: NeedsAddPath('.PYC')
+; add .PY to PATHEXT if not present
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: expandsz; ValueName: "PATHEXT"; ValueData: "{olddata};.PY"; \
+    Check: NeedsAddPath('.PY')
+
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
 ; START PYTHON
-Filename: {tmp}\python-2.7.11.amd64.msi; WorkingDir: {tmp}; Flags: skipifdoesntexist; Tasks: PYTHON
+Filename: "{sys}\msiexec.exe"; Parameters: "/i {tmp}\python-2.7.11.amd64.msi /qb ALLUSERS=1 ADDLOCAL=ALL TARGETDIR={sd}\python27"; WorkingDir: "{tmp}"
+; END PYTHON
+; START NUMPY
+Filename: "{reg:HKLM\SOFTWARE\Python\PythonCore\2.7,InstallPath|{sd}\python27\}Scripts\pip.exe"; Parameters: "install numpy"
+; END NUMPY
+; START MATPLOTLIB
+Filename: "{reg:HKLM\SOFTWARE\Python\PythonCore\2.7,InstallPath|{sd}\python27\}Scripts\pip.exe"; Parameters: "install matplotlib"
+; END MATPLOTLIB
+; START WXPYTHON
+Filename: "{tmp}\wxPython3.0-win64-3.0.2.0-py27.exe"; Parameters: "/SILENT"; WorkingDir: "{tmp}"
+; END WXPYTHON
 
+[UninstallDelete]
+Type: files; Name: "{app}\*.pyc"
+
+;[UninstallRun]
+;Filename: "{reg:HKLM\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\wxPython3.0-py27_is1,UninstallString|{sd}\Python27\Lib\site-packages\wx-3.0-msw}"
+
+[Code]
+function NeedsAddPath(Param: string): boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_LOCAL_MACHINE,
+    'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+    'Path', OrigPath)
+  then begin
+    Result := True;
+    exit;
+  end;
+  // look for the path with leading and trailing semicolon
+  // Pos() returns 0 if not found
+  Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
+end;
