@@ -17,10 +17,12 @@ AppVersion={#MyAppVersion}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath, |{sd}\python27\}Lib\site-packages\{#MyAppName}
+ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64
+DefaultDirName={reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27\}Lib\site-packages\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=E:\mesaplot-wininst\gpl-2.0.rtf
-OutputBaseFilename=mesaplot-setup
+OutputBaseFilename=mesaplot-setup-amd64
 Compression=none
 SolidCompression=yes
 
@@ -31,7 +33,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 SelectDirLabel3=Setup will install [name] into the following folder. If you already have a Python 2.7 version installed elsewhere, please install in [your_python_root]\Lib\site-packages\MESAplot
 
 [Components]
-Name: "python"; Description: "Python 2.7.11 x64 installer"; Types: full
+Name: "python"; Description: "Python 2.7.11 x64 installer"; Types: full; Check: PythonInstalled()
 ;Name: "numpy"; Description: "numpy Python module"; Types: full
 ;Name: "matplotlib"; Description: "matplotlib Python module"; Types: full
 ;Name: "wxpython"; Description: "wxPython Python module"; Types: full
@@ -47,7 +49,7 @@ Source: "E:\mesaplot-wininst\mesaplot\default_settings.py"; DestDir: "{app}"; Fl
 Source: "E:\mesaplot-wininst\mesaplot\File_Manager.py"; DestDir: "{app}"; Flags: ignoreversion
 Source: "E:\mesaplot-wininst\mesaplot\MESAoutput1.py"; DestDir: "{app}"; Flags: ignoreversion
 Source: "E:\mesaplot-wininst\mesaplot\plot_manager.py"; DestDir: "{app}"; Flags: ignoreversion
-Source: "E:\mesaplot-wininst\mesaplot\README.txt"; DestDir: "{app}"; Flags: ignoreversion
+Source: "E:\mesaplot-wininst\mesaplot\README.txt"; DestDir: "{app}"; Flags: ignoreversion isreadme
 Source: "E:\mesaplot-wininst\python-2.7.11.amd64.msi"; DestDir: "{tmp}"; Flags: ignoreversion; Components: "python"
 Source: "E:\mesaplot-wininst\wxPython3.0-win64-3.0.2.0-py27.exe"; DestDir: "{tmp}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
@@ -59,32 +61,32 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Fil
 
 [Registry]
 ; add Python root to path if not present
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
     ValueType: string; ValueName: "Path"; ValueData: "{olddata};{app}"; \
-    Check: NeedsAddPath('{app}')
+    Check: NeedsAddPath(ExpandConstant('{sd}\python27'))
 ; add Python scripts dir to path if not present
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
-    ValueType: string; ValueName: "Path"; ValueData: "{olddata};{app}/Scripts"; \
-    Check: NeedsAddPath('{app}\Scripts')
+;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+    ValueType: string; ValueName: "Path"; ValueData: "{olddata};{app}\Scripts"; \
+    Check: NeedsAddPath(ExpandConstant('{sd}\python27\Scripts'))
 ; add .PYC to PATHEXT if not present
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
     ValueType: expandsz; ValueName: "PATHEXT"; ValueData: "{olddata};.PYC"; \
-    Check: NeedsAddPath('.PYC')
+    Check: NeedsAddPathExt('.PYC')
 ; add .PY to PATHEXT if not present
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
+;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
     ValueType: expandsz; ValueName: "PATHEXT"; ValueData: "{olddata};.PY"; \
-    Check: NeedsAddPath('.PY')
+    Check: NeedsAddPathExt('.PY')
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
 ; START PYTHON
-Filename: "{sys}\msiexec.exe"; Parameters: "/i {tmp}\python-2.7.11.amd64.msi /qb ALLUSERS=1 ADDLOCAL=ALL TARGETDIR={sd}\python27"; WorkingDir: "{tmp}"
+Filename: "{sys}\msiexec.exe"; Parameters: "/i {tmp}\python-2.7.11.amd64.msi /qb ALLUSERS=1 ADDLOCAL=ALL TARGETDIR={sd}\python27"; WorkingDir: "{tmp}"; Check: PythonInstalled()
 ; END PYTHON
 ; START NUMPY
-Filename: "{reg:HKLM\SOFTWARE\Python\PythonCore\2.7,InstallPath|{sd}\python27\}Scripts\pip.exe"; Parameters: "install numpy"
+Filename: "{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27\}Scripts\pip.exe"; Parameters: "install numpy"
 ; END NUMPY
 ; START MATPLOTLIB
-Filename: "{reg:HKLM\SOFTWARE\Python\PythonCore\2.7,InstallPath|{sd}\python27\}Scripts\pip.exe"; Parameters: "install matplotlib"
+Filename: "{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27\}Scripts\pip.exe"; Parameters: "install matplotlib"
 ; END MATPLOTLIB
 ; START WXPYTHON
 Filename: "{tmp}\wxPython3.0-win64-3.0.2.0-py27.exe"; Parameters: "/SILENT"; WorkingDir: "{tmp}"
@@ -108,7 +110,50 @@ begin
     Result := True;
     exit;
   end;
+  if RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Python\PythonCore\2.7\InstallPath')
+  then begin
+    Result := False;
+    exit;
+  end;
   // look for the path with leading and trailing semicolon
   // Pos() returns 0 if not found
   Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
+end;
+
+function NeedsAddPathExt(Param: string): boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_LOCAL_MACHINE,
+    'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+    'PATHEXT', OrigPath)
+  then begin
+    Result := True;
+    exit;
+  end;
+  if RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Python\PythonCore\2.7\InstallPath')
+  then begin
+    Result := False;
+    exit;
+  end;
+  // look for the path with leading and trailing semicolon
+  // Pos() returns 0 if not found
+  Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
+end;
+
+function PythonInstalled(): boolean;
+begin
+  if not RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Python\PythonCore\2.7\InstallPath')
+  then begin
+    Result := True;
+    exit;
+  end;
+end;
+
+function AddBackslash(Param: string): string;
+var
+  orig: string;
+begin
+  RegQueryStringValue(HKEY_LOCAL_MACHINE,'SOFTWARE\Python\PythonCore\2.7\InstallPath','(Default)', orig);
+  Result := AddBackslash(orig);
 end;
