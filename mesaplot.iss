@@ -14,7 +14,7 @@ AppVersion={#MyAppVersion}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}Lib\site-packages\{#MyAppName}
+DefaultDirName={code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{reg:HKCU\Software\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}}Lib\site-packages\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=E:\mesaplot-wininst\gpl-2.0.rtf
 OutputBaseFilename=mesaplot-setup
@@ -71,6 +71,41 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Fil
 ;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
     ValueType: expandsz; ValueName: "PATHEXT"; ValueData: "{olddata};.PY"; \
     Check: NeedsAddPathExt('.PY')
+; add file associations if don't exist
+Root: HKCR; Subkey: .py; ValueType: string; ValueData: "Python.File"; Flags: createvalueifdoesntexist
+Root: HKCR; Subkey: .py; ValueType: string; ValueName: "Content Type"; ValueData: "text/plain"; Flags: createvalueifdoesntexist
+Root: HKCR; Subkey: .pyc; ValueType: string; ValueData: "Python.CompiledFile"; Flags: createvalueifdoesntexist
+Root: HKCR; Subkey: .pyo; ValueType: string; ValueData: "Python.CompiledFile"; Flags: createvalueifdoesntexist
+Root: HKCR; Subkey: .pyw; ValueType: string; ValueData: "Python.NoConFile"; Flags: createvalueifdoesntexist
+Root: HKCR; Subkey: .pyw; ValueType: string; ValueName: "Content Type"; ValueData: "text/plain"; Flags: createvalueifdoesntexist
+
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.CompiledFile"; ValueType: string; ValueData: "Compiled Python File"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.CompiledFile\DefaultIcon"; ValueType: string; ValueData: "{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{reg:HKCU\Software\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}}DLLs\pyc.ico"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.CompiledFile\shell"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.CompiledFile\shell\open"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.CompiledFile\shell\open\command"; ValueType: string; ValueData: """{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{reg:HKCU\Software\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}}python.exe"" ""%1"" %*"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.CompiledFile\shellex"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.CompiledFile\shellex\DropHandler"; ValueType: string; ValueData: "{{60254CA5-953B-11CF-8C96-00AA00B8708C}"; Flags: createvalueifdoesntexist
+
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.File"; ValueType: string; ValueData: "Python File"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.File\DefaultIcon"; ValueType: string; ValueData: "{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{reg:HKCU\Software\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}}DLLs\py.ico"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.File\shell"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.File\shell\Edit with IDLE"
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.File\shell\Edit with IDLE\command"; ValueType: string; ValueData: """{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{reg:HKCU\Software\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}}pythonw.exe"" ""{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{reg:HKCU\Software\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}}Lib\idlelib\idle.pyw"" -e ""%1"""
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.File\shell\open"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.File\shell\open\command"; ValueType: string; ValueData: """{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{reg:HKCU\Software\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}}python.exe"" ""%1"" %*"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.File\shellex"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.File\shellex\DropHandler"; ValueType: string; ValueData: "{{60254CA5-953B-11CF-8C96-00AA00B8708C}"; Flags: createvalueifdoesntexist
+
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.NoConFile"; ValueType: string; ValueData: "Python File (no console)"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.NoConFile\DefaultIcon"; ValueType: string; ValueData: "{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{reg:HKCU\Software\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}}DLLs\py.ico"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.NoConFile\shell"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.NoConFile\shell\Edit with IDLE"
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.NoConFile\shell\Edit with IDLE\command"; ValueType: string; ValueData: """{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{reg:HKCU\Software\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}}pythonw.exe"" ""{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{reg:HKCU\Software\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}}Lib\idlelib\idle.pyw"" -e ""%1"""
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.NoConFile\shell\open"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.NoConFile\shell\open\command"; ValueType: string; ValueData: """{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{reg:HKCU\Software\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}}pythonw.exe"" ""%1"" %*"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.NoConFile\shellex"; Flags: createvalueifdoesntexist
+Root: HKLM; Subkey: "SOFTWARE\Classes\Python.NoConFile\shellex\DropHandler"; ValueType: string; ValueData: "{{60254CA5-953B-11CF-8C96-00AA00B8708C}"; Flags: createvalueifdoesntexist
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
@@ -78,10 +113,10 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 Filename: "{sys}\msiexec.exe"; Parameters: "/i {tmp}\python-2.7.11.msi /qb ALLUSERS=1 ADDLOCAL=ALL TARGETDIR={sd}\python27"; WorkingDir: "{tmp}"; Check: PythonInstalled()
 ; END PYTHON
 ; START NUMPY
-Filename: "{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27\}Scripts\pip.exe"; Parameters: "install numpy"
+Filename: "{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}Scripts\pip.exe"; Parameters: "install numpy"
 ; END NUMPY
 ; START MATPLOTLIB
-Filename: "{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27\}Scripts\pip.exe"; Parameters: "install matplotlib"
+Filename: "{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}Scripts\pip.exe"; Parameters: "install matplotlib"
 ; END MATPLOTLIB
 ; START WXPYTHON
 Filename: "{tmp}\wxPython3.0-win32-3.0.2.0-py27.exe"; Parameters: "/SILENT"; WorkingDir: "{tmp}"
@@ -138,7 +173,7 @@ end;
 
 function PythonInstalled(): boolean;
 begin
-  if not RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Python\PythonCore\2.7\InstallPath')
+  if not RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Python\PythonCore\2.7\InstallPath') and not RegKeyExists(HKEY_CURRENT_USER, 'Software\Python\PythonCore\2.7\InstallPath')
   then begin
     Result := True;
     exit;
