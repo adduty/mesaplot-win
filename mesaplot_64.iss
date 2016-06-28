@@ -17,11 +17,13 @@ AppVersion={#MyAppVersion}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
+ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64
 DefaultDirName={reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27\}Lib\site-packages\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=E:\mesaplot-wininst\gpl-2.0.rtf
-OutputBaseFilename=mesaplot-setup
-Compression=lzma2
+OutputBaseFilename=mesaplot-setup-amd64
+Compression=none
 SolidCompression=yes
 
 [Languages]
@@ -31,7 +33,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 SelectDirLabel3=Setup will install [name] into the following folder. If you already have a Python 2.7 version installed elsewhere, please install in [your_python_root]\Lib\site-packages\MESAplot
 
 [Components]
-Name: "python"; Description: "Python 2.7.11 installer"; Types: full; Check: PythonInstalled()
+Name: "python"; Description: "Python 2.7.11 x64 installer"; Types: full; Check: PythonInstalled()
 ;Name: "numpy"; Description: "numpy Python module"; Types: full
 ;Name: "matplotlib"; Description: "matplotlib Python module"; Types: full
 ;Name: "wxpython"; Description: "wxPython Python module"; Types: full
@@ -48,8 +50,8 @@ Source: "E:\mesaplot-wininst\mesaplot\File_Manager.py"; DestDir: "{app}"; Flags:
 Source: "E:\mesaplot-wininst\mesaplot\MESAoutput1.py"; DestDir: "{app}"; Flags: ignoreversion
 Source: "E:\mesaplot-wininst\mesaplot\plot_manager.py"; DestDir: "{app}"; Flags: ignoreversion
 Source: "E:\mesaplot-wininst\mesaplot\README.txt"; DestDir: "{app}"; Flags: ignoreversion isreadme
-Source: "E:\mesaplot-wininst\python-2.7.11.msi"; DestDir: "{tmp}"; Flags: ignoreversion; Components: "python"
-Source: "E:\mesaplot-wininst\wxPython3.0-win32-3.0.2.0-py27.exe"; DestDir: "{tmp}"; Flags: ignoreversion
+Source: "E:\mesaplot-wininst\python-2.7.11.amd64.msi"; DestDir: "{tmp}"; Flags: ignoreversion; Components: "python"
+Source: "E:\mesaplot-wininst\wxPython3.0-win64-3.0.2.0-py27.exe"; DestDir: "{tmp}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -78,7 +80,7 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Fil
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
 ; START PYTHON
-Filename: "{sys}\msiexec.exe"; Parameters: "/i {tmp}\python-2.7.11.msi /qb ALLUSERS=1 ADDLOCAL=ALL TARGETDIR={sd}\python27"; WorkingDir: "{tmp}"; Check: PythonInstalled()
+Filename: "{sys}\msiexec.exe"; Parameters: "/i {tmp}\python-2.7.11.amd64.msi /qb ALLUSERS=1 ADDLOCAL=ALL TARGETDIR={sd}\python27"; WorkingDir: "{tmp}"; Check: PythonInstalled()
 ; END PYTHON
 ; START NUMPY
 Filename: "{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27\}Scripts\pip.exe"; Parameters: "install numpy"
@@ -87,7 +89,7 @@ Filename: "{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27\}
 Filename: "{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27\}Scripts\pip.exe"; Parameters: "install matplotlib"
 ; END MATPLOTLIB
 ; START WXPYTHON
-Filename: "{tmp}\wxPython3.0-win32-3.0.2.0-py27.exe"; Parameters: "/SILENT"; WorkingDir: "{tmp}"
+Filename: "{tmp}\wxPython3.0-win64-3.0.2.0-py27.exe"; Parameters: "/SILENT"; WorkingDir: "{tmp}"
 ; END WXPYTHON
 
 [UninstallDelete]
