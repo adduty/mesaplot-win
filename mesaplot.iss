@@ -29,9 +29,6 @@ SelectDirLabel3=Setup will install [name] into the following folder. If you alre
 
 [Components]
 Name: "python"; Description: "Python 2.7.11 installer"; Types: full; Check: PythonInstalled()
-;Name: "numpy"; Description: "numpy Python module"; Types: full
-;Name: "matplotlib"; Description: "matplotlib Python module"; Types: full
-;Name: "wxpython"; Description: "wxPython Python module"; Types: full
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -55,14 +52,6 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
 
 [Registry]
-; add Python root to path if not present
-;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
-    ValueType: string; ValueName: "Path"; ValueData: "{olddata};{app}"; \
-    Check: NeedsAddPath(ExpandConstant('{sd}\python27'))
-; add Python scripts dir to path if not present
-;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
-    ValueType: string; ValueName: "Path"; ValueData: "{olddata};{app}\Scripts"; \
-    Check: NeedsAddPath(ExpandConstant('{sd}\python27\Scripts'))
 ; add .PYC to PATHEXT if not present
 ;Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; \
     ValueType: expandsz; ValueName: "PATHEXT"; ValueData: "{olddata};.PYC"; \
@@ -125,31 +114,7 @@ Filename: "{tmp}\wxPython3.0-win32-3.0.2.0-py27.exe"; Parameters: "/SILENT"; Wor
 [UninstallDelete]
 Type: files; Name: "{app}\*.pyc"
 
-;[UninstallRun]
-;Filename: "{reg:HKLM\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\wxPython3.0-py27_is1,UninstallString|{sd}\Python27\Lib\site-packages\wx-3.0-msw}"
-
 [Code]
-function NeedsAddPath(Param: string): boolean;
-var
-  OrigPath: string;
-begin
-  if not RegQueryStringValue(HKEY_LOCAL_MACHINE,
-    'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
-    'Path', OrigPath)
-  then begin
-    Result := True;
-    exit;
-  end;
-  if RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Python\PythonCore\2.7\InstallPath')
-  then begin
-    Result := False;
-    exit;
-  end;
-  // look for the path with leading and trailing semicolon
-  // Pos() returns 0 if not found
-  Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
-end;
-
 function NeedsAddPathExt(Param: string): boolean;
 var
   OrigPath: string;
