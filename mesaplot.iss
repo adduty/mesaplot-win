@@ -28,7 +28,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 SelectDirLabel3=Setup will install [name] into the following folder. If you already have a Python 2.7 version installed elsewhere, please install in [your_python_root]\Lib\site-packages\MESAplot
 
 [Components]
-Name: "python"; Description: "Python 2.7.11 installer"; Types: full; Check: PythonInstalled()
+Name: "python"; Description: "Python 2.7.12 installer"; Types: full; Check: PythonInstalled()
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
@@ -42,7 +42,7 @@ Source: "E:\mesaplot-wininst\mesaplot\File_Manager.py"; DestDir: "{app}"; Flags:
 Source: "E:\mesaplot-wininst\mesaplot\MESAoutput1.py"; DestDir: "{app}"; Flags: ignoreversion
 Source: "E:\mesaplot-wininst\mesaplot\plot_manager.py"; DestDir: "{app}"; Flags: ignoreversion
 Source: "E:\mesaplot-wininst\mesaplot\README.txt"; DestDir: "{app}"; Flags: ignoreversion isreadme
-Source: "E:\mesaplot-wininst\python-2.7.11.msi"; DestDir: "{tmp}"; Flags: ignoreversion; Components: "python"
+Source: "E:\mesaplot-wininst\python-2.7.12.msi"; DestDir: "{tmp}"; Flags: ignoreversion; Components: "python"
 Source: "E:\mesaplot-wininst\wxPython3.0-win32-3.0.2.0-py27.exe"; DestDir: "{tmp}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
@@ -99,7 +99,7 @@ Root: HKLM; Subkey: "SOFTWARE\Classes\Python.NoConFile\shellex\DropHandler"; Val
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent
 ; START PYTHON
-Filename: "{sys}\msiexec.exe"; Parameters: "/i {tmp}\python-2.7.11.msi /qb ALLUSERS=1 ADDLOCAL=ALL TARGETDIR={sd}\python27"; WorkingDir: "{tmp}"; Check: PythonInstalled()
+Filename: "{sys}\msiexec.exe"; Parameters: "/i {tmp}\python-2.7.12.msi /qb ALLUSERS=1 ADDLOCAL=ALL TARGETDIR={sd}\python27"; WorkingDir: "{tmp}"; Check: PythonInstalled()
 ; END PYTHON
 ; START NUMPY
 Filename: "{code:AddBackslash|{reg:HKLM\SOFTWARE\Python\PythonCore\2.7\InstallPath,|{sd}\python27}}Scripts\pip.exe"; Parameters: "install numpy"
@@ -137,10 +137,25 @@ begin
 end;
 
 function PythonInstalled(): boolean;
+var
+  PyDir: string;
+  PyVer: AnsiString;
+  PyLatest: AnsiString;
+  PyEq: integer;
+  ErrorCode: integer;
 begin
+RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Python\PythonCore\2.7\InstallPath', '', PyDir);
+ShellExec('', ExpandConstant('{cmd}'), '/C' + AddBackslash(PyDir) + 'python.exe' + ' --version' + ' 2> python_version.txt', ExpandConstant('{tmp}'), 0, ewWaitUntilTerminated, ErrorCode);
+LoadStringFromFile(ExpandConstant('{tmp}') + '\python_version.txt', PyVer);
+PyLatest := 'Python 2.7.12';
   if not RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Python\PythonCore\2.7\InstallPath') and not RegKeyExists(HKEY_CURRENT_USER, 'Software\Python\PythonCore\2.7\InstallPath')
   then begin
     Result := True;
     exit;
+  end;
+  PyEq := CompareText(Trim(PyVer), PyLatest);
+  if not PyEq = 0
+  then begin
+    Result := True;
   end;
 end;
