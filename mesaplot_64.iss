@@ -140,22 +140,21 @@ end;
 function PythonInstalled(): boolean;
 var
   PyDir: string;
-  PyVer: string;
-  PyLatest: string;
+  PyVer: AnsiString;
+  PyLatest: AnsiString;
   PyEq: integer;
+  ErrorCode: integer;
 begin
 RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Python\PythonCore\2.7\InstallPath', '', PyDir);
-RegQueryStringValue(HKEY_LOCAL_MACHINE, 'SOFTWARE\Python\PythonCore\2.7\Help\Main Python Documentation', '', PyVer);
-//PyLatest := ExpandConstant('{sd}\Pythonforme\Doc\python2711.chm');
-PyLatest := AddBackslash(PyDir) + 'Doc\python2712.chm';
+ShellExec('', ExpandConstant('{cmd}'), '/C' + AddBackslash(PyDir) + 'python.exe' + ' --version' + ' 2> python_version.txt', ExpandConstant('{tmp}'), 0, ewWaitUntilTerminated, ErrorCode);
+LoadStringFromFile(ExpandConstant('{tmp}') + '\python_version.txt', PyVer);
+PyLatest := 'Python 2.7.12';
   if not RegKeyExists(HKEY_LOCAL_MACHINE, 'SOFTWARE\Python\PythonCore\2.7\InstallPath') and not RegKeyExists(HKEY_CURRENT_USER, 'Software\Python\PythonCore\2.7\InstallPath')
   then begin
     Result := True;
     exit;
   end;
-  Log(PyVer);
-  Log(PyLatest);
-  PyEq := CompareText(PyVer, PyLatest);
+  PyEq := CompareText(Trim(PyVer), PyLatest);
   if not PyEq = 0
   then begin
     Result := True;
